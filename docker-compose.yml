@@ -9,8 +9,6 @@ services:
     container_name: dev-server
     entrypoint: >
       /bin/bash -c "prefect server start"
-    env_file:
-      - .env
     ports:
       - "4200:4200"
     networks:

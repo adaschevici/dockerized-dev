@@ -21,7 +21,7 @@ RUN set -eux \
 
 RUN apk add bash git lua nodejs npm lazygit bottom python3 py-pip python3-dev go \
   neovim ripgrep alpine-sdk sudo jq netcat-openbsd net-tools iproute2 lsof \
-  libffi-dev libffi tzdata --update
+  libffi-dev libffi tzdata tmux --update
 
 RUN echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel
 RUN adduser ${APP_USER} wheel
@@ -35,5 +35,5 @@ USER "${APP_USER}"
 ENV PATH="${PATH}:/home/zero/.local/bin"
 
 RUN git clone --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/nvim
-RUN pip install poetry prefect \
+RUN pip install poetry prefect prefect-dask dask[dataframe] \
   && prefect config set PREFECT_API_DATABASE_CONNECTION_URL="postgresql+asyncpg://postgres:superSecurePassword@prefect-pg:5442/prefect"
