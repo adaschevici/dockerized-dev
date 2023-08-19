@@ -19,6 +19,7 @@ services:
       - PREFECT_UI_URL=http://127.0.0.0:4200/api
       - PREFECT_API_URL=http://127.0.0.1:4200/api
       - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PATH=/home/zero/.local/bin:${PATH}
     depends_on:
       prefect-pg:
         condition: service_healthy
