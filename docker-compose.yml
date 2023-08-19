@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+  server:
+    restart: on-failure
+    build:
+      dockerfile: "./server.dockerfile"
+      context: .
+    container_name: dev-server
+    entrypoint: >
+      /bin/bash -c "prefect server start"
+    env_file:
+      - .env
+    ports:
+      - "4200:4200"
+    networks:
+      - INTRANET
+    volumes:
+      - ${SOURCE_CODE_PATH}:/project-sourcecode
+    environment:
+      - PREFECT_UI_URL=http://127.0.0.0:4200/api
+      - PREFECT_API_URL=http://127.0.0.1:4200/api
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+    depends_on:
+      prefect-pg:
+        condition: service_healthy
+  prefect-pg:
+    image: postgres:16beta3-alpine
+    container_name: database
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "postgres",
+          "-d",
+          "prefect",
+          "-p",
+          "5442"
+        ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    volumes:
+      - ./docker_init_scripts/init-db-0.sh:/docker-entrypoint-initdb.d/0-init.sh
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=prefect
+      - POSTGRES_PASSWORD=superSecurePassword
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    command: -p 5442
+    expose:
+      - "5442"
+    ports:
+      - 5442:5442
+    networks:
+      - INTRANET
+
+networks:
+  INTRANET:
+
+
+volumes:
+  postgres_data:
