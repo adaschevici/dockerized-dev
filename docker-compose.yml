@@ -4,22 +4,23 @@ services:
   server:
     restart: on-failure
     build:
-      dockerfile: "./server.dockerfile"
+      dockerfile: "./manjaro.dockerfile"
       context: .
     container_name: dev-server
     entrypoint: >
-      /bin/bash -c "prefect server start"
+      /bin/bash -c "prefect server start" # /bin/bash -c "python -m http.server 4200" 
+    env_file:
+      - .env
     ports:
       - "4200:4200"
     networks:
       - INTRANET
     volumes:
-      - ${SOURCE_CODE_PATH}:/project-sourcecode
+      - ${SOURCE_CODE_PATH:-./}:/project-sourcecode
     environment:
       - PREFECT_UI_URL=http://127.0.0.0:4200/api
       - PREFECT_API_URL=http://127.0.0.1:4200/api
       - PREFECT_SERVER_API_HOST=0.0.0.0
-      - PATH=/home/zero/.local/bin:${PATH}
     depends_on:
       prefect-pg:
         condition: service_healthy
